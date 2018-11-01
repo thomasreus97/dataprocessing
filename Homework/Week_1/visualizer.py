@@ -24,17 +24,34 @@ if __name__ == "__main__":
         for i in reader:
             data_dict[i['Year']].append(float(i['Rating']))
 
-    # line plot of average rating vs year
+    # calculate x and y values
     x = []
     y = []
     for i in data_dict:
         x.append(i)
         y.append(sum(data_dict[i])/len(data_dict[i]))
+    total_average = sum(y)/len(y)
+    print(total_average)
+
+    # line plot of average rating vs year
+    plt.figure(0)
     plt.plot(x, y)
     plt.title("Average rating vs year of top 50 movies")
     plt.xlabel("Year")
+    plt.ylim(8,9)
     plt.ylabel("Average rating")
-    plt.show()
+
+    # bar plot
+    plt.figure(1)
+    plt.plot([0, 10], [total_average, total_average])
+    plt.bar(x, y, align='center', alpha=0.5)
+    plt.xlabel("Year")
+    plt.title("Average rating vs year of top 50 movies")
+    plt.ylim(8,9)
+    plt.ylabel("Average rating")
 
     # print data_dict
     print(data_dict)
+
+    # show figures
+    plt.show()
