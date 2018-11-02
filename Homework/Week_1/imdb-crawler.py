@@ -10,6 +10,7 @@ import csv
 import codecs
 import errno
 import json
+import urllib.request
 
 from requests import get
 from requests.exceptions import RequestException
@@ -131,14 +132,15 @@ def main():
 
     # grab all relevant information from the 250 movie web pages
     rows = []
-    # counter = 0
     for i, url in enumerate(url_strings):  # Enumerate, a great Python trick!
         print('Scraping movie %d ...' % i)
-        # if counter < 60:
-        #     counter += 1
-        #     continue
+
         # Grab web page
         movie_html = simple_get(url)
+
+        # wait when connection is lost
+        while not urllib.request.urlopen(url).getcode() == 200:
+            print("connection lost")
 
         # Extract relevant information for each movie
         movie_dom = BeautifulSoup(movie_html, "lxml")
@@ -210,12 +212,15 @@ def scrape_movie_page(dom):
     rating = dictionary["aggregateRating"]["ratingValue"]
     number_ratings = dictionary["aggregateRating"]["ratingCount"]
     # multiple genres with semicolon
-    genre = ''
-    for i in dictionary["genre"]:
-        if genre:
-            genre += ';'
-        genre += i
-    # # add directors with semicolon
+    if len(dictionary["genre"]) > 1:
+        genre = ''
+        for i in dictionary["genre"]:
+            if genre:
+                genre += ';'
+            genre += i
+    else:
+        genre = dictionary["genre"]
+    # add directors with semicolon
     director = ''
     for i in dictionary["director"]:
         if i == "@type":
