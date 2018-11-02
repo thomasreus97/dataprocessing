@@ -9,6 +9,7 @@ import os
 import csv
 import codecs
 import errno
+import json
 
 from requests import get
 from requests.exceptions import RequestException
@@ -130,9 +131,12 @@ def main():
 
     # grab all relevant information from the 250 movie web pages
     rows = []
+    # counter = 0
     for i, url in enumerate(url_strings):  # Enumerate, a great Python trick!
         print('Scraping movie %d ...' % i)
-
+        # if counter < 60:
+        #     counter += 1
+        #     continue
         # Grab web page
         movie_html = simple_get(url)
 
@@ -141,10 +145,9 @@ def main():
         rows.append(scrape_movie_page(movie_dom))
 
         # Save one of the IMDB's movie pages (for testing)
-        if i == 0:
+        if i == 83:
             html_file = os.path.join(BACKUP_DIR, 'movie-%03d.html' % i)
             make_backup(html_file, movie_html)
-        break
 
     # Save a CSV file with the relevant information for the top 250 movies.
     print('Saving CSV ...')
@@ -196,18 +199,62 @@ def scrape_movie_page(dom):
     """
 
     # get the part with the nescessary information
-    scripts = dom.find_all('script')
-    for script in scripts:
-        if 'type' in script.attrs and 'application' in script.attrs['type']:
-            lines = script
+    script = dom.find('script', type='application/ld+json')
+    h4_list = dom.find_all('h4')
 
-    # seperate the string
-    lines = lines.attrs
-    print(lines)
+    # get dictionary from script using json
+    dictionary = json.loads(script.text)
 
+    # information from the dictionary
+    title = dictionary["name"]
+    rating = dictionary["aggregateRating"]["ratingValue"]
+    number_ratings = dictionary["aggregateRating"]["ratingCount"]
+    # multiple genres with semicolon
+    genre = ''
+    for i in dictionary["genre"]:
+        if genre:
+            genre += ';'
+        genre += i
+    # # add directors with semicolon
+    director = ''
+    for i in dictionary["director"]:
+        if i == "@type":
+            director = dictionary["director"]["name"]
+            break
+        if director:
+            director += ';'
+        director += i["name"]
+    # add writers with semicolon
+    writer = ''
+    for i in dictionary["creator"]:
+        if i == "@type":
+            writer = dictionary["creator"]["name"]
+            break
+        if i["@type"] == "Person":
+            if writer:
+                writer += ';'
+            writer += i["name"]
+    # add actors with semicolon
+    actor = ''
+    for i in dictionary["actor"]:
+        if i == "@type":
+            actor = dictionary["actor"]["name"]
+            break
+        if actor:
+            actor += ';'
+        actor += i["name"]
 
-    return #(title, year, duration, genre, director, writer, actor, rating,
-           #number_ratings)
+    # get runtime from h4_list
+    for i in h4_list:
+        if i.string and "Runtime" in i.string:
+            duration = i.next_sibling.next_sibling.string.split(' ')[0]
+            break
+        else:
+            duration = "NaN"
+
+    # return all information
+    return (title, duration, genre, director, writer, actor, rating,
+            number_ratings)
 
 
 if __name__ == '__main__':
