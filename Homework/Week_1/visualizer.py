@@ -30,23 +30,20 @@ if __name__ == "__main__":
     for i in data_dict:
         x.append(i)
         y.append(sum(data_dict[i])/len(data_dict[i]))
-    total_average = sum(y)/len(y)
-    print(total_average)
 
     # line plot of average rating vs year
     plt.figure(0)
     plt.plot(x, y)
-    plt.title("Average rating vs year of top 50 movies")
+    plt.title("Top 50 movies: Average rating vs production year")
     plt.xlabel("Year")
     plt.ylim(8,9)
     plt.ylabel("Average rating")
 
     # bar plot
     plt.figure(1)
-    plt.plot([0, 10], [total_average, total_average])
     plt.bar(x, y, align='center', alpha=0.5)
     plt.xlabel("Year")
-    plt.title("Average rating vs year of top 50 movies")
+    plt.title("Top 50 movies: Average rating vs production year")
     plt.ylim(8,9)
     plt.ylabel("Average rating")
 
