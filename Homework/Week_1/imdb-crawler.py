@@ -212,7 +212,7 @@ def scrape_movie_page(dom):
     rating = dictionary["aggregateRating"]["ratingValue"]
     number_ratings = dictionary["aggregateRating"]["ratingCount"]
     # multiple genres with semicolon
-    if len(dictionary["genre"]) > 1:
+    if isinstance(dictionary["genre"], list):
         genre = ''
         for i in dictionary["genre"]:
             if genre:

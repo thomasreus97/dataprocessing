@@ -36,7 +36,6 @@ if __name__ == "__main__":
     plt.plot(x, y)
     plt.title("Top 50 movies: Average rating vs production year")
     plt.xlabel("Year")
-    plt.ylim(8,9)
     plt.ylabel("Average rating")
 
     # bar plot
