@@ -7,8 +7,6 @@ This script visualizes data obtained from a .csv file
 
 import csv
 import matplotlib.pyplot as plt
-import numpy as np
-import matplotlib.cm as cm
 
 # Global constants for the input file, first and last year
 INPUT_CSV = "movies.csv"
