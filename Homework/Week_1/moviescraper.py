@@ -31,7 +31,7 @@ def extract_movies(dom):
     ratings = []
     years = []
     actors = []
-    actor_list = []
+    actor_list = ''
     runtimes = []
 
     # get <a> headers from dom
@@ -56,10 +56,10 @@ def extract_movies(dom):
             # add actor names
             if ('/name/' and '?ref_=adv_li_st') in i.get('href'):
                 if len(titles) == len(actors) + 1:
-                    actor_list.append(i.string)
+                    actor_list += i.string + ', '
                 else:
-                    actors.append(actor_list)
-                    actor_list = []
+                    actors.append(actor_list[:-2])
+                    actor_list = ''
     # add last actors list
     actors.append(actor_list)
 
