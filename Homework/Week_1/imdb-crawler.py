@@ -174,10 +174,10 @@ def scrape_top_250(soup):
     # search td headers with
     td_list = soup.find_all('td')
 
-    # iterate over <td> headers
+    # iterate over <td> headers find titleColumn
     for i in td_list:
-        # find titleColumn
         if 'class' in i.attrs and 'titleColumn' in i.attrs['class']:
+
             # get and append the urls
             url = i.find('a').get('href')
             movie_urls.append("https://www.imdb.com" + url)
@@ -207,10 +207,11 @@ def scrape_movie_page(dom):
     # get dictionary from script using json
     dictionary = json.loads(script.text)
 
-    # information from the dictionary
+    # title and rating information
     title = dictionary["name"]
     rating = dictionary["aggregateRating"]["ratingValue"]
     number_ratings = dictionary["aggregateRating"]["ratingCount"]
+
     # multiple genres with semicolon
     if isinstance(dictionary["genre"], list):
         genre = ''
@@ -220,6 +221,7 @@ def scrape_movie_page(dom):
             genre += i
     else:
         genre = dictionary["genre"]
+
     # add directors with semicolon
     director = ''
     for i in dictionary["director"]:
@@ -229,6 +231,7 @@ def scrape_movie_page(dom):
         if director:
             director += ';'
         director += i["name"]
+
     # add writers with semicolon
     writer = ''
     for i in dictionary["creator"]:
@@ -239,6 +242,7 @@ def scrape_movie_page(dom):
             if writer:
                 writer += ';'
             writer += i["name"]
+
     # add actors with semicolon
     actor = ''
     for i in dictionary["actor"]:

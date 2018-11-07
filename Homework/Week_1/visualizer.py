@@ -38,7 +38,7 @@ if __name__ == "__main__":
     plt.xlabel("Year")
     plt.ylabel("Average rating")
 
-    # bar plot
+    # bar plot of average rating vs year
     plt.figure(1)
     plt.bar(x, y, align='center', alpha=0.5)
     plt.xlabel("Year")

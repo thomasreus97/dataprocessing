@@ -26,33 +26,29 @@ def extract_movies(dom):
     - Actors/actresses (comma separated if more than one)
     - Runtime (only a number!)
     """
-    # make empty lists for information
+
+    # get <a> headers from dom and make lists for info
+    a_list = dom.find_all('a')
     titles = []
-    ratings = []
     years = []
     actors = []
     actor_list = ''
-    runtimes = []
 
-    # get <a> headers from dom
-    a_list = dom.find_all('a')
-    # get <div> headers from dom
-    div_list = dom.find_all('div')
-    # get <span> headers from dom
-    span_list = dom.find_all('span')
-
-    # iterate over <a> headers
+    # iterate over <a> headers and get href
     for i in a_list:
         if i.get('href'):
+
             # add titles to list titles
             if ('/title/' and 'adv_li_tt') in i.get('href'):
                 titles.append(i.string)
+
                 # add years to years list
                 year = i.next_sibling.next_sibling.string
                 for j in year:
                     if j in '() I':
                         year = year.replace(j, '')
                 years.append(year)
+
             # add actor names
             if ('/name/' and '?ref_=adv_li_st') in i.get('href'):
                 if len(titles) == len(actors) + 1:
@@ -60,18 +56,21 @@ def extract_movies(dom):
                 else:
                     actors.append(actor_list[:-2])
                     actor_list = ''
-    # add last actors list
-    actors.append(actor_list)
 
-    # iterate over <div> headers
+    # add last actors list
+    actors.append(actor_list[:-2])
+
+    # iterate over <div> headers and append ratings
+    ratings = []
+    div_list = dom.find_all('div')
     for i in div_list:
-        # append rating
         if i.get('data-value'):
             ratings.append(i.get('data-value'))
 
-    # iterate over <span> headers
+    # iterate over <span> headers and append runtimes
+    runtimes = []
+    span_list = dom.find_all('span')
     for i in span_list:
-        # add runtime to list
         if 'class' in i.attrs and 'runtime' in i.attrs['class']:
             runtimes.append(i.string.split(' ')[0])
 
@@ -86,6 +85,7 @@ def save_csv(outfile, movies):
     writer = csv.writer(outfile)
     writer.writerow(['Title', 'Rating', 'Year', 'Actors', 'Runtime'])
 
+    # write information to csv file
     for i in range(len(movies[0])):
         writer.writerow([movies[0][i], movies[1][i], movies[2][i], movies[3][i],
                          movies[4][i]])
