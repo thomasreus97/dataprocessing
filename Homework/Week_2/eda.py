@@ -63,7 +63,10 @@ def five_number_summary(pandas_frame, data_type):
     minimum = np.min(list)
     maximum = np.max(list)
     quart_1, median, quart_3 = np.percentile(list, [25, 50, 75])
-    boxplot = pandas_frame.boxplot(data_type)
+    pandas_frame.boxplot(by=index,
+                       column=[data_type],
+                       grid=False)
+
     return [minimum, quart_1, median, quart_3, maximum]
 
 if __name__ == "__main__":
