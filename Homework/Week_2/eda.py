@@ -41,18 +41,17 @@ def central_tendency(pandas_frame, data_type):
 
     for i in pandas_frame[data_type]:
         list.append(float(i.split(' ')[0].replace(',', '.')))
-    print(pandas_frame)
-    # print(pandas_frame.loc[:,data_type].mode)
+
     mean = statistics.mean(list)
     median = statistics.median(list)
     mode = max(set(list), key=list.count)
     stdev = statistics.stdev(list)
 
-    # plt.hist(list, bins=50)
-    # plt.xlabel(data_type)
-    # plt.ylabel("Frequency")
-    # plt.title(f"Histrogram of {data_type}")
-    # plt.show()
+    plt.hist(list, bins=50)
+    plt.xlabel(data_type)
+    plt.ylabel("Frequency")
+    plt.title(f"Histrogram of {data_type}")
+    plt.show()
 
     return [mean, median, mode, stdev]
 
@@ -63,7 +62,8 @@ def five_number_summary(pandas_frame, data_type):
         list.append(float(i.split(' ')[0].replace(',', '.')))
     minimum = np.min(list)
     maximum = np.max(list)
-    quart_1, median, quart_3 = np.percentile(data, [25, 50, 75])
+    quart_1, median, quart_3 = np.percentile(list, [25, 50, 75])
+    boxplot = pandas_frame.boxplot(data_type)
     return [minimum, quart_1, median, quart_3, maximum]
 
 if __name__ == "__main__":
@@ -79,9 +79,9 @@ if __name__ == "__main__":
     # with open('info_dict.txt', 'w') as file:
     #     file.write(info_dict)
 
-    pandas_frame = pd.DataFrame.from_dict(info_dict, orient='index')
-    # pandas_frame.to_csv('pandas.csv', sep='\t')
+    pandas_frame = pd.DataFrame.from_dict(info_dict)
+    pandas_frame.to_csv('pandas.csv', sep='\t')
 
-    central_t_gdp = central_tendency(pandas_frame, vars[4])
-    # five_num_inf = five_number_summary(pandas_frame, vars[3])
-    # print(five_num_inf)
+    # central_t_gdp = central_tendency(pandas_frame, vars[4])
+    five_num_inf = five_number_summary(pandas_frame, vars[3])
+    print(five_num_inf)
