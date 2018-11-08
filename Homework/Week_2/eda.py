@@ -25,7 +25,10 @@ def desired_dictionary(csv_dicts, vars):
                 info_dict.pop(i[vars[0]])
                 break
             else:
-                info_dict[i[vars[0]]][j] = i[j]
+                if not i[j].isupper():
+                    info_dict[i[vars[0]]][j] = float(i[j].split(' ')[0].replace(',', '.'))
+                else:
+                    info_dict[i[vars[0]]][j] = i[j]
     return info_dict
 
 
@@ -38,20 +41,20 @@ def check_empty(item):
 
 def central_tendency(pandas_frame, data_type):
     list = []
+    item = pandas_frame.loc[:, data_type]
+    # for i in pandas_frame[data_type]:
+    #     list.append(float(i.split(' ')[0].replace(',', '.')))
 
-    for i in pandas_frame[data_type]:
-        list.append(float(i.split(' ')[0].replace(',', '.')))
+    mean = item.mean()
+    median = item.median()
+    mode = item.mode()[0]
+    stdev = item.std()
 
-    mean = statistics.mean(list)
-    median = statistics.median(list)
-    mode = max(set(list), key=list.count)
-    stdev = statistics.stdev(list)
-
-    plt.hist(list, bins=50)
-    plt.xlabel(data_type)
-    plt.ylabel("Frequency")
-    plt.title(f"Histrogram of {data_type}")
-    plt.show()
+    # plt.hist(list, bins=50)
+    # plt.xlabel(data_type)
+    # plt.ylabel("Frequency")
+    # plt.title(f"Histrogram of {data_type}")
+    # plt.show()
 
     return [mean, median, mode, stdev]
 
@@ -84,7 +87,8 @@ if __name__ == "__main__":
 
     pandas_frame = pd.DataFrame.from_dict(info_dict, orient='index')
     pandas_frame.to_csv('pandas.csv', sep='\t')
-
-    # central_t_gdp = central_tendency(pandas_frame, vars[4])
-    five_num_inf = five_number_summary(pandas_frame, vars[3])
-    print(five_num_inf)
+    # print(pandas_frame.loc[:, vars[-1]].describe())
+    central_t_gdp = central_tendency(pandas_frame, vars[4])
+    # print(central_t_gdp)
+    # five_num_inf = five_number_summary(pandas_frame, vars[3])
+    # print(five_num_inf)
