@@ -82,7 +82,7 @@ if __name__ == "__main__":
     # with open('info_dict.txt', 'w') as file:
     #     file.write(info_dict)
 
-    pandas_frame = pd.DataFrame.from_dict(info_dict)
+    pandas_frame = pd.DataFrame.from_dict(info_dict, orient='index')
     pandas_frame.to_csv('pandas.csv', sep='\t')
 
     # central_t_gdp = central_tendency(pandas_frame, vars[4])
