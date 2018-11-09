@@ -13,7 +13,7 @@ This program does:
   a .json file from this dictionary.
 - Pandas: does some statistics on the
   data (central tendency, 5 number summary,
-        histogram, boxplot).
+        histogram, boxplot, scatterplot).
 """
 
 import csv
