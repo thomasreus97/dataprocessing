@@ -37,7 +37,7 @@ def open_csv(input):
     dictionary = []
 
     # open CSV file and load into dictionary
-    with open('input.csv', newline='') as csvfile:
+    with open(input, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for i in reader:
             dictionary.append(i)
