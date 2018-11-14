@@ -171,7 +171,11 @@ def five_number_summary(pandas_frame, data_type):
 
     # create Boxplot
     plt.figure('boxplot')
+    plt.title(f"Boxplot of: {data_type}")
+    plt.ylabel(data_type)
     pandas_frame.boxplot(column=data_type)
+    axis = plt.gca()
+    axis.axes.get_xaxis().set_ticks([])
     plt.ylim(bottom=0)
 
     # return five number summary
