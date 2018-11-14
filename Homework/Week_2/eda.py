@@ -39,8 +39,8 @@ def open_csv(input):
     # open CSV file and load into dictionary
     with open(input, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
-        for i in reader:
-            dictionary.append(i)
+        for country_dict in reader:
+            dictionary.append(country_dict)
 
     # return dictionary
     return dictionary
@@ -64,21 +64,21 @@ def desired_dictionary(csv_dicts, vars):
     info_dict = {}
 
     # iterate over dictionaries in input
-    for i in csv_dicts:
+    for c_dict in csv_dicts:
         # create and fill dictionary for every country with desired info
-        info_dict[i[vars[0]]] = {}
-        for j in vars[1:]:
+        info_dict[c_dict[vars[0]]] = {}
+        for var in vars[1:]:
             # check for inconsistencies and remove data when so
-            if check_empty(i[j], j):
-                info_dict.pop(i[vars[0]])
+            if check_empty(c_dict[var], var):
+                info_dict.pop(c_dict[vars[0]])
                 break
             else:
                 # do some changes on the data and add to dictionary
-                if not i[j].isupper():
-                    input_item = float(i[j].split(' ')[0].replace(',', '.'))
-                    info_dict[i[vars[0]]][j] = input_item
+                if not c_dict[var].isupper():
+                    input_item = float(c_dict[var].split(' ')[0].replace(',', '.'))
+                    info_dict[c_dict[vars[0]]][var] = input_item
                 else:
-                    info_dict[i[vars[0]]][j] = i[j].split('   ')[0]
+                    info_dict[c_dict[vars[0]]][var] = c_dict[var].split('   ')[0]
 
     # return information dictionary
     return info_dict
@@ -138,6 +138,8 @@ def central_tendency(pandas_frame, data_type):
     plt.title(f"histogram of {data_type}")
     plt.xlabel(data_type)
     plt.ylabel("Frequency")
+    plt.ylim(bottom=0)
+    plt.xlim(left=0)
 
     # return central tendency
     return [mean, median, mode, stdev]
@@ -170,6 +172,7 @@ def five_number_summary(pandas_frame, data_type):
     # create Boxplot
     plt.figure('boxplot')
     pandas_frame.boxplot(column=data_type)
+    plt.ylim(bottom=0)
 
     # return five number summary
     return [minimum, quart_1, median, quart_3, maximum]
@@ -204,6 +207,8 @@ def scatter_plot_region(pandas_frame, value_x, value_y):
     ax2.set_title(f"Average per region scatterplot between {value_x} and {value_y}")
     ax2.set_xlabel(value_x)
     ax2.set_ylabel(value_y)
+    plt.ylim(bottom=0)
+    plt.xlim(left=0)
     ax1.legend()
 
 
