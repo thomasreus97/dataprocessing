@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Page Title</title>
+  </head>
+  <body>
+
+    <h1>My First Heading</h1>
+    <p>My first paragraph.</p>
+    <script type="text/javascript">
+      var fileName = "KNMI_20180101.json";
+      var txtFile = new XMLHttpRequest();
+      txtFile.onreadystatechange = function() {
+          if (txtFile.readyState === 4 && txtFile.status == 200) {
+              jsonObject = JSON.parse(txtFile.responseText);
+              loopFunction(jsonObject);
+          }
+      }
+      txtFile.open("GET", fileName, true);
+      txtFile.send();
+
+      function loopFunction(obj) {
+        objectList = Object.keys(obj);
+        objectKeyList = Object.keys(obj[objectList[0]]);
+        min = objectKeyList[0];
+        max = objectKeyList[1];
+
+        xArr = [];
+        yArrMin = [];
+        yArrMax = [];
+        var i;
+        for(i = 0; i < objectList.length; i++){
+          xArr.push(Number(objectList[i]));
+          yArrMin.push(obj[objectList[i]][min]);
+          yArrMax.push(obj[objectList[i]][max]);
+        }
+        canvasFunction(xArr, yArrMin, yArrMax)
+      }
+
+      function canvasFunction(xArr, yArrMin, yArrMax) {
+
+      }
+
+//       var canvas = document.getElementById('myCanvas'); // in your HTML this element appears as <canvas id="myCanvas"></canvas>
+// var ctx = canvas.getContext('2d');
+    </script>
+  </body>
+</html>

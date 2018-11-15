@@ -1,0 +1,15 @@
+- Explain the difference between the == operator and the === operator.
+== : type-converting equality comparison (doesnt have to be the same type)
+=== : has to be exactly the same (strict)
+
+- Explain what a closure is. (Note that JavaScript programs use closures very often)
+A closure is a function having access to the parent scope, even after the parent function has closed.
+
+- Explain what higher order functions are.
+A higher-order function is a function that can take another function as an argument, or that returns a function as a result.
+
+- Explain what a query selector is and give an example line of JavaScript that uses a query selector.
+A query selector gets the first element in a document with a specific class
+example:
+(Get the first element in the document with class="example")
+document.querySelector(".example");
