@@ -5,22 +5,24 @@
     <title>Page Title</title>
   </head>
   <body>
-
     <h1>My First Heading</h1>
     <p>My first paragraph.</p>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
     <script type="text/javascript">
       var fileName = "KNMI_20180101.json";
       var txtFile = new XMLHttpRequest();
       txtFile.onreadystatechange = function() {
           if (txtFile.readyState === 4 && txtFile.status == 200) {
               jsonObject = JSON.parse(txtFile.responseText);
-              loopFunction(jsonObject);
+              data = dataCollector(jsonObject);
+              plotData = dataToDataPoints(data[0], data[1], data[2]);
+              plotFunction(plotData[0], plotData[1]);
           }
       }
       txtFile.open("GET", fileName, true);
       txtFile.send();
 
-      function loopFunction(obj) {
+      function dataCollector(obj) {
         objectList = Object.keys(obj);
         objectKeyList = Object.keys(obj[objectList[0]]);
         min = objectKeyList[0];
@@ -29,21 +31,161 @@
         xArr = [];
         yArrMin = [];
         yArrMax = [];
+
         var i;
         for(i = 0; i < objectList.length; i++){
           xArr.push(Number(objectList[i]));
           yArrMin.push(obj[objectList[i]][min]);
           yArrMax.push(obj[objectList[i]][max]);
         }
-        canvasFunction(xArr, yArrMin, yArrMax)
+
+        var xArrMin = Math.min.apply(null, xArr);
+        var xArrMax = Math.max.apply(null, xArr);
+        var dateMin = dateConverter(xArrMin);
+        var dateMax = dateConverter(xArrMax);
+
+        xDomain = [dateMin.getTime(), dateMax.getTime()];
+        yDomain = [Math.min.apply(null, yArrMin),
+                   Math.max.apply(null, yArrMax)];
+
+        xRange = [0, 366];
+        yRange = [-10, 35];
+
+        xData = transformData(xArr, xDomain, xRange, true);
+        yMinData = transformData(yArrMin, yDomain, yRange);
+        yMaxData = transformData(yArrMax, yDomain, yRange);
+
+        return [xData, yMinData, yMaxData];
       }
 
-      function canvasFunction(xArr, yArrMin, yArrMax) {
-
+      function dateConverter(date){
+        date = date.toString();
+        var year = date[0] + date[1] + date[2] + date[3];
+        var month = date[4] + date[5];
+        var day = date[6] + date[7];
+        return new Date(Number(year), Number(month), Number(day));
       }
 
-//       var canvas = document.getElementById('myCanvas'); // in your HTML this element appears as <canvas id="myCanvas"></canvas>
-// var ctx = canvas.getContext('2d');
+      function transformData(dataInput, domain, range, date=false){
+        transformFunction = createTransform(domain, range);
+        var i;
+        dataList = [];
+        if (date === true) {
+          for(i = 0; i < dataInput.length; i++){
+            var date = dateConverter(dataInput[i]);
+            console.log(date)
+            dataList.push(transformFunction(x=date.getTime()));
+          }
+          return dataList;
+        }
+        for(i = 0; i < dataInput.length; i++){
+          dataList.push(transformFunction(x=dataInput[i]));
+        }
+        return dataList;
+      }
+
+      function createTransform(domain, range){
+      	/* domain is a two-element array of the data bounds [domain_min, domain_max]
+      	   range is a two-element array of the screen bounds [range_min, range_max]
+      	   this gives you two equations to solve:
+      	   range_min = alpha * domain_min + beta
+      	   range_max = alpha * domain_max + beta
+     		   a solution would be:
+        */
+
+        var domain_min = domain[0];
+        var domain_max = domain[1];
+        var range_min = range[0];
+        var range_max = range[1];
+
+        // formulas to calculate the alpha and the beta
+       	var alpha = (range_max - range_min) / (domain_max - domain_min);
+        var beta = range_max - alpha * domain_max;
+
+        // returns the function for the linear transformation (y= a * x + b)
+        return function(x){
+          return alpha * x + beta;
+        }
+      }
+
+      function dataToDataPoints(xData, yDataMin, yDataMax) {
+        var i;
+        dataMin = [];
+        dataMax = [];
+        for(i = 0; i < xData.length; i++) {
+          dictionary = {};
+          dictionary["x"] = xData[i];
+          dictionary["y"] = yDataMin[i];
+          dataMin.push(dictionary);
+          dictionary = {};
+          dictionary["x"] = xData[i];
+          dictionary["y"] = yDataMax[i];
+          dataMax.push(dictionary);
+        }
+        return [dataMin, dataMax];
+      }
+
+      function plotFunction(dataMin, dataMax) {
+        var chart = new CanvasJS.Chart("canvas",{
+          animationEnabled: true,
+          title:{
+            text: "Min and Max temperature on schiphol in 2017"
+          },
+          axisX:{
+        		// valueFormatString: "DD MMM",
+        		crosshair: {
+        			enabled: true,
+        			snapToDataPoint: true
+        		}
+        	},
+        	axisY: {
+        		title: "Temperature",
+        		crosshair: {
+        			enabled: true
+        		}
+        	},
+          toolTip:{
+        		shared:true
+        	},
+        	legend:{
+        		cursor:"pointer",
+        		verticalAlign: "bottom",
+        		horizontalAlign: "left",
+        		dockInsidePlotArea: true,
+        		itemclick: toogleDataSeries
+        	},
+        	data: [{
+        		type: "line",
+        		showInLegend: true,
+        		name: "Min Temperature",
+        		markerType: "square",
+        		// xValueFormatString: "DD MMM, YYYY",
+        		color: "blue",
+        		dataPoints: dataMin
+        	},
+        	{
+        		type: "line",
+        		showInLegend: true,
+        		name: "Max Temperature",
+            color: "red",
+        		dataPoints: dataMax
+        	}]
+        });
+        chart.render();
+      }
+
+      function toogleDataSeries(e){
+      	if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+      		e.dataSeries.visible = false;
+      	}
+        else {
+      		e.dataSeries.visible = true;
+      	}
+      	chart.render();
+      }
+
     </script>
+    <div id="canvas" width="300" height="300"></div>
+
   </body>
 </html>
