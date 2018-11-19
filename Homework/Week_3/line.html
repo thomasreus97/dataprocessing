@@ -1,37 +1,75 @@
 <!DOCTYPE html>
 
+<!--
+Name: Thomas Reus
+Student number: 11150041
+Assignment: Line plot Javascript
+
+This html file creates a html output
+with a line plot of the min and max
+temperature on schiphol from 1951 until
+2018.
+The line plot has a pointer cursor and
+you can zoom into the graph by selecting.
+-->
+
 <html>
   <head>
-    <title>Page Title</title>
+    <title>Line_Thomas_Reus</title>
   </head>
   <body>
-    <h1>My First Heading</h1>
-    <p>My first paragraph.</p>
+    <!-- basic information -->
+    <h3>Name:</h3>
+    <p>Thomas Reus</p>
+    <h3>Student number:</h3>
+    <p>11150041</p>
+    <h3>Assignment:</h3>
+    <p>Javascript Line Plot</p>
+    <h3>Data source:</h3>
+    <a href="http://projects.knmi.nl/klimatologie/daggegevens/selectie.cgi">
+      KNMI Database
+    </a>
+    <h3>Plot:</h3>
+
+    <!-- external canvasjs script -->
     <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+    <!-- main script -->
     <script type="text/javascript">
+
+      // select data file and do XMLHttpRequest
       var fileName = "KNMI_20180101.json";
       var txtFile = new XMLHttpRequest();
+
+      // when XMLHttpRequest is finished run function
       txtFile.onreadystatechange = function() {
           if (txtFile.readyState === 4 && txtFile.status == 200) {
+              // create json object
               jsonObject = JSON.parse(txtFile.responseText);
+              // collect data from json file and format for plotting
               data = dataCollector(jsonObject);
               plotData = dataToDataPoints(data[0], data[1], data[2]);
+              // plot data
               plotFunction(plotData[0], plotData[1]);
           }
       }
       txtFile.open("GET", fileName, true);
       txtFile.send();
 
+      // collect data from json file and format
       function dataCollector(obj) {
+        // collect keys
         objectList = Object.keys(obj);
         objectKeyList = Object.keys(obj[objectList[0]]);
         min = objectKeyList[0];
         max = objectKeyList[1];
 
+        // create empty arrays for x and y
         xArr = [];
         yArrMin = [];
         yArrMax = [];
 
+        // fill arrays with data
         var i;
         for(i = 0; i < objectList.length; i++){
           xArr.push(Number(objectList[i]));
@@ -39,45 +77,53 @@
           yArrMax.push(obj[objectList[i]][max]);
         }
 
+        // calculate the domains
         var xArrMin = Math.min.apply(null, xArr);
         var xArrMax = Math.max.apply(null, xArr);
         var dateMin = dateConverter(xArrMin);
         var dateMax = dateConverter(xArrMax);
-
         xDomain = [dateMin.getTime(), dateMax.getTime()];
         yDomain = [Math.min.apply(null, yArrMin),
                    Math.max.apply(null, yArrMax)];
 
-        xRange = [0, 366];
+        // create range
         yRange = [-10, 35];
 
-        xData = transformData(xArr, xDomain, xRange, true);
+        // transfor the data
+        xData = transformData(xArr, xDomain, 0, true);
         yMinData = transformData(yArrMin, yDomain, yRange);
         yMaxData = transformData(yArrMax, yDomain, yRange);
 
+        // return the data
         return [xData, yMinData, yMaxData];
       }
 
+      // convert date stringinto date type object
       function dateConverter(date){
         date = date.toString();
         var year = date[0] + date[1] + date[2] + date[3];
         var month = date[4] + date[5];
         var day = date[6] + date[7];
-        return new Date(Number(year), Number(month), Number(day));
+        return new Date(Number(year), Number(month)-1, Number(day));
       }
 
+      // use createtransform function in different ways
       function transformData(dataInput, domain, range, date=false){
-        transformFunction = createTransform(domain, range);
+        // empty list
         var i;
         dataList = [];
+
+        // convert date before transforming
         if (date === true) {
           for(i = 0; i < dataInput.length; i++){
             var date = dateConverter(dataInput[i]);
-            console.log(date)
-            dataList.push(transformFunction(x=date.getTime()));
+            dataList.push(date);
           }
           return dataList;
         }
+
+        // transform non-date data
+        transformFunction = createTransform(domain, range);
         for(i = 0; i < dataInput.length; i++){
           dataList.push(transformFunction(x=dataInput[i]));
         }
@@ -108,10 +154,20 @@
         }
       }
 
+      // create needed data sets for plotting
       function dataToDataPoints(xData, yDataMin, yDataMax) {
+        // variable and arrays
         var i;
         dataMin = [];
         dataMax = [];
+
+        // push min and max function
+        /*
+          This is typed doule (extra coding is wrong)
+          instead of an general function twice because
+          some data-related errors occured when i tried
+          to do it the other way.
+        */
         for(i = 0; i < xData.length; i++) {
           dictionary = {};
           dictionary["x"] = xData[i];
@@ -122,51 +178,59 @@
           dictionary["y"] = yDataMax[i];
           dataMax.push(dictionary);
         }
+
+        // return datapoints
         return [dataMin, dataMax];
       }
 
+      // plot function
       function plotFunction(dataMin, dataMax) {
         var chart = new CanvasJS.Chart("canvas",{
+          zoomEnabled: true,
           animationEnabled: true,
           title:{
-            text: "Min and Max temperature on schiphol in 2017"
+            text: "Min and Max temperature on schiphol from 1951-2018"
           },
+          subtitles: [{
+      			text: "Select region to zoom inside the graph"
+      		}],
           axisX:{
-        		// valueFormatString: "DD MMM",
+        		valueFormatString: "MMM, YYYY",
+            title: "Date (Month, Year)",
         		crosshair: {
         			enabled: true,
         			snapToDataPoint: true
         		}
         	},
         	axisY: {
-        		title: "Temperature",
-        		crosshair: {
-        			enabled: true
-        		}
+            lineThickness: 0,
+        		title: "Temperature (Celsius)",
         	},
           toolTip:{
-        		shared:true
+        		shared: true
         	},
         	legend:{
-        		cursor:"pointer",
+        		cursor: "pointer",
         		verticalAlign: "bottom",
         		horizontalAlign: "left",
         		dockInsidePlotArea: true,
-        		itemclick: toogleDataSeries
+        		itemclick: interactiveLegend
         	},
         	data: [{
         		type: "line",
         		showInLegend: true,
-        		name: "Min Temperature",
+        		name: "Min",
         		markerType: "square",
-        		// xValueFormatString: "DD MMM, YYYY",
+            lineThickness: 0.5,
+        		xValueFormatString: "DD MMM, YYYY",
         		color: "blue",
         		dataPoints: dataMin
         	},
         	{
         		type: "line",
         		showInLegend: true,
-        		name: "Max Temperature",
+            lineThickness: 0.5,
+        		name: "Max",
             color: "red",
         		dataPoints: dataMax
         	}]
@@ -174,8 +238,10 @@
         chart.render();
       }
 
-      function toogleDataSeries(e){
-      	if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+      // interactive line display
+      function interactiveLegend(e){
+      	if (typeof(e.dataSeries.visible) === "undefined" ||
+            e.dataSeries.visible) {
       		e.dataSeries.visible = false;
       	}
         else {
@@ -185,6 +251,8 @@
       }
 
     </script>
+
+    <!-- show the canvasjs plot -->
     <div id="canvas" width="300" height="300"></div>
 
   </body>
