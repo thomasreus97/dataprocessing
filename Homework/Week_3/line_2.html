@@ -17,6 +17,13 @@ you can zoom into the graph by selecting.
   <head>
     <meta charset=utf-8 />
     <title>Lineplot_ThomasReus</title>
+    <style>
+      canvas {
+      position: absolute;
+      top: 1000;
+      left: 0;
+      }
+    </style>
   </head>
   <body>
     <!-- basic information -->
@@ -30,9 +37,11 @@ you can zoom into the graph by selecting.
     <a href="http://projects.knmi.nl/klimatologie/daggegevens/selectie.cgi">
       KNMI Database
     </a>
-    <h3>Plot:</h3>
+    <h3>Plot: (Click on graph to select point, iterate with left and right key)</h3>
     <!-- canvas, canvasline and import java -->
     <canvas id="myCanvas" width="1300" height="600"></canvas>
+    <canvas id="mouseCanvas" width="1300" height="600"></canvas>
     <script src="mainJavaLine.js"></script>
+    <script src="mouseMovement.js"></script>
   </body>
 </html>

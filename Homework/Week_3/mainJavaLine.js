@@ -7,7 +7,7 @@ var GRAPH_TOP = 100;
 var GRAPH_BOTTOM = 500;
 var GRAPH_LEFT = 100;
 var GRAPH_RIGHT = 1198;
-var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec', ''];
 
 // when XMLHttpRequest is finished run function
 txtFile.onreadystatechange = function() {
@@ -67,7 +67,7 @@ function dataCollector(obj) {
   yMaxData = transformData(yArrMax, yDomain, yRange);
 
   // return the data
-  return [xData, yMinData, yMaxData, yDomain];
+  return [xData, yMinData, yMaxData, yDomain, xArr, yArrMin, yArrMax];
 };
 
 
@@ -165,7 +165,7 @@ function canvasMaking(data){
 
     // x label
     ctx.font = "bold 15px sans-serif";
-    ctx.fillText("Time (Months)", GRAPH_RIGHT / 2 + 2, GRAPH_BOTTOM + 50);
+    ctx.fillText("Time (Months)", GRAPH_RIGHT / 2 + 2, GRAPH_BOTTOM + 40);
     ctx.stroke();
 
     // y label
@@ -175,11 +175,11 @@ function canvasMaking(data){
 
     // x ticks
     var i = 0;
-    for (var x = GRAPH_LEFT; x < GRAPH_RIGHT + 1; x += (GRAPH_RIGHT - GRAPH_LEFT)/11) {
+    for (var x = GRAPH_LEFT; x < GRAPH_RIGHT + 1; x += (GRAPH_RIGHT - GRAPH_LEFT)/12) {
       ctx.moveTo(x, GRAPH_BOTTOM);
       ctx.lineTo(x, GRAPH_BOTTOM + 10);
       ctx.font = "bold 10px sans-serif";
-      ctx.fillText(MONTHS[i], x, GRAPH_BOTTOM + 20);
+      ctx.fillText(MONTHS[i], x + 32, GRAPH_BOTTOM + 15);
       i += 1;
     };
     ctx.stroke();
