@@ -18,7 +18,7 @@ import csv
 import json
 
 # name of the input file (without .txt or .csv)
-INPUT_NAME = "KNMI_20180101"
+INPUT_NAME = "KNMI_19601231"
 
 
 def convert_txt_to_csv(file_name):
