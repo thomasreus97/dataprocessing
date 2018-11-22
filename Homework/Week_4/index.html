@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset=utf-8 />
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      // title page, info and title barchart
+      d3.select("head")
+          .append("title")
+          .text("D3 Barchart");
+      // d3.select("body")
+      //     .append("p")
+      //     .text("Name: Thomas Reus");
+      // d3.select("body")
+      //     .append("p")
+      //     .text("Student Number: 11150041");
+      // d3.select("body")
+      //     .append("p")
+      //     .text("Description:");
+      d3.select("body")
+          .append("h2")
+          .text("Barchart:");
+      var dataList = [5, 20, 12, 22, 15]
+      d3.select("body").selectAll("p")
+          .data(dataList)
+          .enter()
+          .append("p")
+          .text(function(d) {
+            return d;
+          })
+          .style("color", function(d) {
+            if (d > 15) {   //Threshold of 15
+              return "red";
+            }
+            else {
+              return "black";
+            }
+          });
+
+      // import json file with json
+      d3.json("data.json", function(d) {
+        if (error) throw error;
+        console.log("data?");
+      });
+      console.log("wow")
+      d3.json("data.json", function(d){
+        console.log(d)
+        return d
+      })
+
+
+    </script>
+  </body>
+</html>
