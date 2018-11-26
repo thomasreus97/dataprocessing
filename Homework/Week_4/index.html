@@ -6,50 +6,211 @@
   </head>
   <body>
     <script type="text/javascript">
+
+      // variables svg
+      var w = 1200;
+      var h = 500;
+      var barPadding = 1;
+      var topChart = 50;
+      var bottomChart = 50;
+      var leftChart = 50;
+      var rightChart = 50;
+
+      // create a tooltip
+      var tooltip = d3.select("body")
+                    	.append("div")
+                    	.style("position", "absolute")
+                      .style("text-align", "center")
+                      .style("width", "100px")
+                    	.style("visibility", "hidden")
+                      .style("background", "black")
+                      .style("border", "2px solid red")
+                      .style("border-radius", "5px")
+                      .style("color", "white");
+
       // title page, info and title barchart
       d3.select("head")
           .append("title")
           .text("D3 Barchart");
-      // d3.select("body")
-      //     .append("p")
-      //     .text("Name: Thomas Reus");
-      // d3.select("body")
-      //     .append("p")
-      //     .text("Student Number: 11150041");
-      // d3.select("body")
-      //     .append("p")
-      //     .text("Description:");
       d3.select("body")
           .append("h2")
-          .text("Barchart:");
-      var dataList = [5, 20, 12, 22, 15]
-      d3.select("body").selectAll("p")
-          .data(dataList)
-          .enter()
+          .style("text-align", "center")
+          .text("Contribution of renewables to total primary energy supply per country");
+      d3.select("body")
           .append("p")
-          .text(function(d) {
-            return d;
-          })
-          .style("color", function(d) {
-            if (d > 15) {   //Threshold of 15
-              return "red";
-            }
-            else {
-              return "black";
-            }
-          });
+          .text("Name: Thomas Reus");
+      d3.select("body")
+          .append("p")
+          .text("Student Number: 11150041");
+      d3.select("body")
+          .append("p")
+          .text("Description: This barchart shows the contribution percentage " +
+                " of renewables to the total primary energy supply for " +
+                "different countries in different years." +
+                'Primary energy supply is defined as energy production plus' +
+                'energy imports, minus energy exports, minus international ' +
+                'bunkers then plus or minus stock changes.'+
+                "Renewable energy is defined as the contribution of renewables" +
+                " to total primary energy supply (TPES). Renewables include" +
+                " the primary energy equivalent of hydro (excluding pumped " +
+                "storage), geothermal, solar, wind, tide and wave sources." +
+                " Energy derived from solid biofuels, biogasoline, biodiesels,"
+                + " other liquid biofuels, biogases and the renewable fraction"
+                + " of municipal waste are also included.");
+      d3.select("body")
+        .append("p")
+        .text("Choose year:")
 
-      // import json file with json
-      d3.json("data.json", function(d) {
-        if (error) throw error;
-        console.log("data?");
+      // create selection bar, on change update barchart
+      var selectionBar = d3.select("body")
+                           .append("select")
+                           .attr("class", "select");
+
+      d3.select("body")
+        .append("p")
+
+      // make svg
+      var svg = d3.select("body")
+        .append("svg")
+        .attr("width", w)
+        .attr("height", h);
+
+      // import json file with d3
+      d3.json("data.json").then(function(d) {
+        var data = d;
+
+        // construct dictionary
+        dataDict = {};
+        for (i in data){
+          for (j in data[i]){
+            dataDict[j] = [];
+          };
+        };
+
+        // fill dictionary with values
+        for (i in data){
+          for (j in data[i]){
+            dataDict[j].push([i, Number(data[i][j]["Value"])]);
+          };
+        };
+
+        // plot barchart (first one)
+        barGraphMaker(dataDict["1960"]);
+
+        // fill different years into selection
+        // create option list
+        yearList = [];
+        for (i in dataDict){
+          yearList.push(i);
+        };
+
+        var yearsOption = selectionBar.selectAll("option")
+            	                  .data(yearList)
+                                .enter()
+            	                  .append("option")
+            		                .text(function (d) {
+                                  return d;
+                                });
+
+        // add interactivity to the select
+        selectionBar.on("change", function() {
+          chosenYear = selectionBar.property("value");
+          svg.selectAll("*").remove();
+          barGraphMaker(dataDict[chosenYear]);
+        });
+
       });
-      console.log("wow")
-      d3.json("data.json", function(d){
-        console.log(d)
-        return d
-      })
 
+
+      // function to plot the Barchart
+      function barGraphMaker(dataSet){
+
+        // seperate x and y values
+        xValues = [];
+        yValues = [];
+        for (i in dataSet){
+          xValues.push(dataSet[i][0]);
+          yValues.push(dataSet[i][1]);
+        }
+
+        // create scales for axis
+        var yScale = d3.scaleLinear()
+                       .domain([0, Math.max.apply(null, yValues)])
+                       .range([h - bottomChart, topChart]);
+        var xScale = d3.scaleBand()
+                       .domain(xValues)
+                       .range([leftChart, w - rightChart]);
+
+        // create bars
+        var bars = svg.selectAll("rect")
+           .data(yValues)
+           .enter()
+           .append("rect")
+           .attr("fill", "blue")
+           .attr("width", (w - leftChart - rightChart) / xValues.length -
+                 barPadding + "px")
+           .attr("y", function(d) {
+              var barHeight = yScale(d);
+              return barHeight - bottomChart + topChart + "px";
+           })
+           .attr("x", function(d, i) {
+              return i * (w - leftChart - rightChart) / xValues.length +
+                          leftChart + "px";
+           })
+           .attr("height", function(d) {
+              var barHeight = yScale(d);
+              return (h - barHeight) - topChart + "px";
+           })
+           .on("mouseover", function(d){
+             d3.select(this)
+               .attr("fill", "red")
+             return (tooltip.style("visibility", "visible")
+                            .text("Value = " + d));
+           })
+           .on("mouseout", function(){
+             return (tooltip.style("visibility", "hidden"),
+                     bars.attr("fill", "blue"));
+           })
+           .on("mousemove", function(d, i){
+             return tooltip.style("top", yScale(d) + bottomChart + topChart +
+                                  150 + "px")
+                           .style("left", i * (w - leftChart - rightChart) /
+                                  xValues.length + leftChart - 23 + "px");
+           });
+
+        // create axes
+        var xAxis = d3.axisBottom(xScale);
+        var yAxis = d3.axisLeft(yScale);
+
+        // plot x-axis
+        svg.append("g")
+           .attr("class", "axis")
+           .attr("transform", "translate("+[0, h - topChart]+")")
+           .call(xAxis);
+
+        // plot y-axis
+        svg.append("g")
+           .attr("class", "axis")
+           .attr("transform", "translate("+[leftChart, 0]+")")
+           .call(yAxis);
+
+        // x label
+        svg.append("text")
+            .attr("transform",
+                  "translate("+[(w - leftChart - rightChart)/2 + leftChart,
+                                 h - topChart + bottomChart]+")")
+            .style("text-anchor", "middle")
+            .text("Location");
+
+        // y label
+        svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", - h / 2)
+            .attr("y", 0)
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("% of total primary energy supply");
+      };
 
     </script>
   </body>
