@@ -198,7 +198,7 @@ another bar chart for all the years of that country.
              d3.select(this)
                .attr("fill", "red")
              return (tooltip.style("visibility", "visible")
-                            .text(d + "%"));
+                            .text(xValues[yValues.indexOf(d)] + ": " + d + "%"));
            })
            .on("mouseout", function(){
              d3.select(this)
