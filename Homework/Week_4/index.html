@@ -7,7 +7,7 @@ Assignment: barchart D3
 
 This html file creates a html output
 with a barchart of the PC_PRYENRGSUPPLY per country.
-This barchart has a hover function, 
+This barchart has a hover function,
 and a sorting function by year.
 -->
 
@@ -31,7 +31,7 @@ and a sorting function by year.
       // create a tooltip
       var tooltip = d3.select("body")
                     	.append("div")
-                    	.style("position", "absolute")
+                    	.style("position", "fixed")
                       .style("text-align", "center")
                       .style("width", "100px")
                     	.style("visibility", "hidden")
@@ -42,33 +42,37 @@ and a sorting function by year.
 
       // title page, info and title barchart
       d3.select("head")
-          .append("title")
-          .text("D3 Barchart");
+        .append("title")
+        .text("D3 Barchart");
       d3.select("body")
-          .append("h2")
-          .style("text-align", "center")
-          .text("Contribution of renewables to total primary energy supply per country");
+        .append("h2")
+        .style("text-align", "center")
+        .text("Contribution of renewables to total primary energy supply per country");
       d3.select("body")
-          .append("p")
-          .text("Name: Thomas Reus");
+        .append("p")
+        .text("Name: Thomas Reus");
       d3.select("body")
-          .append("p")
-          .text("Student Number: 11150041");
+        .append("p")
+        .text("Student Number: 11150041");
       d3.select("body")
-          .append("p")
-          .text("Description: This barchart shows the contribution percentage " +
-                " of renewables to the total primary energy supply for " +
-                "different countries in different years." +
-                'Primary energy supply is defined as energy production plus' +
-                'energy imports, minus energy exports, minus international ' +
-                'bunkers then plus or minus stock changes.'+
-                "Renewable energy is defined as the contribution of renewables" +
-                " to total primary energy supply (TPES). Renewables include" +
-                " the primary energy equivalent of hydro (excluding pumped " +
-                "storage), geothermal, solar, wind, tide and wave sources." +
-                " Energy derived from solid biofuels, biogasoline, biodiesels,"
-                + " other liquid biofuels, biogases and the renewable fraction"
-                + " of municipal waste are also included.");
+        .append("p")
+        .text("Description:")
+      d3.select("body")
+        .append("p")
+        .style("width", "1000px")
+        .text("This barchart shows the contribution percentage " +
+              " of renewables to the total primary energy supply for " +
+              "different countries in different years. " +
+              'Primary energy supply is defined as energy production plus' +
+              'energy imports, minus energy exports, minus international ' +
+              'bunkers then plus or minus stock changes. '+
+              "Renewable energy is defined as the contribution of renewables" +
+              " to total primary energy supply (TPES). Renewables include" +
+              " the primary energy equivalent of hydro (excluding pumped " +
+              "storage), geothermal, solar, wind, tide and wave sources." +
+              " Energy derived from solid biofuels, biogasoline, biodiesels,"
+              + " other liquid biofuels, biogases and the renewable fraction"
+              + " of municipal waste are also included.");
       d3.select("body")
         .append("p")
         .text("Choose year:")
@@ -177,15 +181,14 @@ and a sorting function by year.
              d3.select(this)
                .attr("fill", "red")
              return (tooltip.style("visibility", "visible")
-                            .text("Value = " + d));
+                            .text(d + "%"));
            })
            .on("mouseout", function(){
              return (tooltip.style("visibility", "hidden"),
                      bars.attr("fill", "blue"));
            })
            .on("mousemove", function(d, i){
-             return tooltip.style("top", yScale(d) + bottomChart + topChart +
-                                  150 + "px")
+             return tooltip.style("top", event.clientY - h / 10 + "px")
                            .style("left", i * (w - leftChart - rightChart) /
                                   xValues.length + leftChart - 23 + "px");
            });
