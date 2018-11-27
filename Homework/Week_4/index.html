@@ -9,6 +9,10 @@ This html file creates a html output
 with a barchart of the PC_PRYENRGSUPPLY per country.
 This barchart has a hover function,
 and a sorting function by year.
+
+Clicking on a bar from one country creates
+another bar chart for all the years of that country.
+(a bar chart to keep it real with the assignment)
 -->
 
 <html lang="en">
@@ -20,10 +24,10 @@ and a sorting function by year.
     <script type="text/javascript">
 
       // variables svg
-      var w = 1200;
+      var w = 1500;
       var h = 500;
       var barPadding = 1;
-      var topChart = 50;
+      var topChart = 60;
       var bottomChart = 50;
       var leftChart = 50;
       var rightChart = 50;
@@ -81,16 +85,24 @@ and a sorting function by year.
       var selectionBar = d3.select("body")
                            .append("select")
                            .attr("class", "select");
-                           
+
       // empty body for layout purposes
       d3.select("body")
         .append("p")
+        .text("(Clicking on a bar makes a %/year barchart on the bottom of " +
+              "the page for that country)")
 
-      // make svg
+      // make svg primary barchart
       var svg = d3.select("body")
-        .append("svg")
-        .attr("width", w)
-        .attr("height", h);
+                  .append("svg")
+                  .attr("width", w)
+                  .attr("height", h);
+
+      // make second svg secondary barchart
+      var svgTwo = d3.select("body")
+                     .append("svg")
+                     .attr("width", w)
+                     .attr("height", h);
 
       // import json file with d3
       d3.json("data.json").then(function(d) {
@@ -112,7 +124,8 @@ and a sorting function by year.
         };
 
         // plot barchart (first one)
-        barGraphMaker(dataDict["1960"]);
+        // inpout: data, svg, x_label
+        barGraphMaker(dataDict["1960"], svg, "Country", data);
 
         // fill different years into selection
         // create option list
@@ -121,29 +134,31 @@ and a sorting function by year.
           yearList.push(i);
         };
         var yearsOption = selectionBar.selectAll("option")
-            	                  .data(yearList)
-                                .enter()
-            	                  .append("option")
-            		                .text(function (d) {
-                                  return d;
-                                });
+                  	                  .data(yearList)
+                                      .enter()
+                  	                  .append("option")
+                  		                .text(function (d) {
+                                        return d;
+                                      });
 
         // add interactivity to the select
         selectionBar.on("change", function() {
           chosenYear = selectionBar.property("value");
           svg.selectAll("*").remove();
-          barGraphMaker(dataDict[chosenYear]);
+          svgTwo.selectAll("*").remove();
+          barGraphMaker(dataDict[chosenYear], svg, "Country", data);
         });
 
       });
 
 
       // function to plot the Barchart
-      function barGraphMaker(dataSet){
+      // inpout: data, svg, x_label
+      function barGraphMaker(dataSet, svgInput, xLabel, allData=[]){
 
         // seperate x and y values
-        xValues = [];
-        yValues = [];
+        var xValues = [];
+        var yValues = [];
         for (i in dataSet){
           xValues.push(dataSet[i][0]);
           yValues.push(dataSet[i][1]);
@@ -158,7 +173,7 @@ and a sorting function by year.
                        .range([leftChart, w - rightChart]);
 
         // create bars
-        var bars = svg.selectAll("rect")
+        var bars = svgInput.selectAll("rect")
            .data(yValues)
            .enter()
            .append("rect")
@@ -167,7 +182,7 @@ and a sorting function by year.
                  barPadding + "px")
            .attr("y", function(d) {
               var barHeight = yScale(d);
-              return barHeight - bottomChart + topChart + "px";
+              return - topChart + bottomChart + barHeight + "px";
            })
            .attr("x", function(d, i) {
               return i * (w - leftChart - rightChart) / xValues.length +
@@ -175,10 +190,10 @@ and a sorting function by year.
            })
            .attr("height", function(d) {
               var barHeight = yScale(d);
-              return (h - barHeight) - topChart + "px";
+              return (h - barHeight) - bottomChart + "px";
            })
 
-           // interactivity for mouse
+           // interactivity for mouse hovering (how value and change color bar)
            .on("mouseover", function(d){
              d3.select(this)
                .attr("fill", "red")
@@ -186,13 +201,25 @@ and a sorting function by year.
                             .text(d + "%"));
            })
            .on("mouseout", function(){
-             return (tooltip.style("visibility", "hidden"),
-                     bars.attr("fill", "blue"));
+             d3.select(this)
+               .attr("fill", "blue")
+             return (tooltip.style("visibility", "hidden"));
            })
            .on("mousemove", function(d, i){
              return tooltip.style("top", event.clientY - h / 10 + "px")
                            .style("left", i * (w - leftChart - rightChart) /
-                                  xValues.length + leftChart - 23 + "px");
+                                  xValues.length + 1 / 2 * leftChart + "px");
+           })
+
+           // extra interactivity for mouse clicking (plot for one country)
+           .on("click", function(d){
+             if (allData.length != 0){
+               onClickGraph(allData, xValues[yValues.indexOf(d)]);
+               bars.attr("stroke-width", 0);
+               d3.select(this)
+                 .attr("stroke", "red")
+                 .attr("stroke-width", 5);
+             }
            });
 
         // create axes
@@ -200,34 +227,51 @@ and a sorting function by year.
         var yAxis = d3.axisLeft(yScale);
 
         // plot x-axis
-        svg.append("g")
-           .attr("class", "axis")
-           .attr("transform", "translate("+[0, h - topChart]+")")
-           .call(xAxis);
+        svgInput.append("g")
+                .attr("class", "axis")
+                .attr("transform", "translate("+[0, h - topChart]+")")
+                .call(xAxis);
 
         // plot y-axis
-        svg.append("g")
-           .attr("class", "axis")
-           .attr("transform", "translate("+[leftChart, 0]+")")
-           .call(yAxis);
+        svgInput.append("g")
+                .attr("class", "axis")
+                .attr("transform", "translate("+[leftChart,
+                                                 bottomChart - topChart]+")")
+                .call(yAxis);
 
         // x label
-        svg.append("text")
-            .attr("transform",
-                  "translate("+[(w - leftChart - rightChart)/2 + leftChart,
-                                 h - topChart + bottomChart]+")")
-            .style("text-anchor", "middle")
-            .text("Location");
+        svgInput.append("text")
+                .attr("transform",
+                      "translate("+[(w - leftChart - rightChart)/2 + leftChart,
+                                     h - topChart + bottomChart]+")")
+                .style("text-anchor", "middle")
+                .text(xLabel);
 
         // y label
-        svg.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("x", - h / 2)
-            .attr("y", 0)
-            .attr("dy", "1em")
-            .style("text-anchor", "middle")
-            .text("% of total primary energy supply");
+        svgInput.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("x", - (h - topChart + bottomChart) / 2)
+                .attr("y", 0)
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .text("% of total primary energy supply");
       };
+
+
+      // function to create barchart for one country for all years on click
+      function onClickGraph(allData, keyValue){
+
+        // create x and y values
+        var dataList = [];
+        for (i in allData[keyValue]){
+          dataList.push([i, allData[keyValue][i]["Value"]]);
+        };
+
+        // empty old and create new bar chart
+        svgTwo.selectAll("*").remove();
+        barGraphMaker(dataList, svgTwo, "Year");
+      };
+
 
     </script>
   </body>
