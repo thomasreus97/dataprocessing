@@ -81,7 +81,8 @@ and a sorting function by year.
       var selectionBar = d3.select("body")
                            .append("select")
                            .attr("class", "select");
-
+                           
+      // empty body for layout purposes
       d3.select("body")
         .append("p")
 
@@ -119,7 +120,6 @@ and a sorting function by year.
         for (i in dataDict){
           yearList.push(i);
         };
-
         var yearsOption = selectionBar.selectAll("option")
             	                  .data(yearList)
                                 .enter()
@@ -177,6 +177,8 @@ and a sorting function by year.
               var barHeight = yScale(d);
               return (h - barHeight) - topChart + "px";
            })
+
+           // interactivity for mouse
            .on("mouseover", function(d){
              d3.select(this)
                .attr("fill", "red")
