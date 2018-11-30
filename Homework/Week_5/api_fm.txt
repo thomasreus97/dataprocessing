@@ -1,0 +1,4 @@
+Application name	scatterplot
+API key	88d9c1d6cd21b5c24abe6a260ff68754
+Shared secret	1b7ccd96aaae806da10f8762da892a4e
+Registered to	thomasreus97
