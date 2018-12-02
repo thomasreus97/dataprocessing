@@ -4,17 +4,36 @@
 Name: Thomas Reus
 Student number: 11150041
 Assignment: scatterplot D3
+
+HTML file for plotting a interactive scatterplot
+with javacript and d3.
 -->
 
 <html lang="en">
   <head>
     <title>D3 scatterplot Thomas Reus</title>
     <meta charset=utf-8 />
+
+    <!-- D3 script for making the graph etc. -->
     <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <!-- script for colorsceme -->
+    <script src="http://d3js.org/colorbrewer.v1.min.js"></script>
+
+    <!-- script for legend -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.13.0/d3-legend.js"></script>
+
+    <!-- css and javascript for making the scatterplot -->
+    <link rel="stylesheet" href="scatter.css"></link>
     <script src="scatter.js"></script>
-    <style src="scatter.css"></style>
   </head>
   <body>
 
+    <!-- basic data -->
+    <p>Name: Thomas Reus</p>
+    <p>Student number: 11150041</p>
+    <p>Source data: OECD</p>
+    <p>Description: This scatterplot contains four information sources: consumer confidence, GDP and women in science in percentage and number.
+    The data can be changed for different years (below) and hovering over the circles shows the countries name.</p>
   </body>
 </html>
