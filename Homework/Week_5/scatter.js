@@ -520,5 +520,5 @@ function updateGraph(scales, data, svg, year) {
                        .labelOffset(20)
                        .orient('vertical');
 
-    // svg.select(".legendSize").call(legendSize);
+    svg.select(".legendSize").call(legendSize);
 };
