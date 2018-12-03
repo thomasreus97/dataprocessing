@@ -163,21 +163,32 @@ function scatterPlotMaker(param, margin, data) {
   // create scales
   var scales = scaleMaker(param, margin, domainData);
 
-  // make axes and legends
+  // make axes
   axesMaker(param, margin, scales, data, svg);
+
+  // make legend
+  legendMaker(param, margin, scales, data, svg);
 
   // add functionality to slider
   var sliderYear = d3.select("#sliderYear")
           .on("input", function(){
             sliderText(this.value);
+
+            // calculate new domains and scales
             var newDomains = variablesCalculator(data[0], this.value);
             var newScales = scaleMaker(param, margin, newDomains);
+
+            // remake legends
+            svg.select("#colorLegend").remove();
+            svg.select(".legendSize").remove();
+            legendMaker(param, margin, newScales, data, svg)
+
+            // update graph
             updateGraph(newScales, data, svg, this.value);
           });
 
   // plot the scatterplot data of first year in data
   scatterPlotter(scales, data, svg, startYear);
-  console.log(data)
 };
 
 
@@ -299,6 +310,10 @@ function axesMaker(param, margin, scales, data, svg) {
      .attr("dy", "1em")
      .style("text-anchor", "middle")
      .text(data[2][1]);
+};
+
+
+function legendMaker(param, margin, scales, data, svg) {
 
   // create color legend
   var colorLegend = d3.legendColor()
@@ -502,23 +517,4 @@ function updateGraph(scales, data, svg, year) {
     // upate the axes and legends
     svg.select("#xAxis").transition().call(d3.axisBottom(scales[0]));
     svg.select("#yAxis").transition().call(d3.axisLeft(scales[1]));
-
-    // new color legend info
-    var colorLegend = d3.legendColor()
-                        .labelFormat(d3.format(".0f"))
-                        .scale(scales[2])
-                        .shapePadding(5)
-                        .shapeWidth(50)
-                        .shapeHeight(20)
-                        .labelOffset(12);
-
-    svg.select("#colorLegend").call(colorLegend);
-
-    // new size legend info
-    var legendSize = d3.legendSize()
-                       .scale(scales[3])
-                       .labelOffset(20)
-                       .orient('vertical');
-
-    svg.select(".legendSize").call(legendSize);
 };
