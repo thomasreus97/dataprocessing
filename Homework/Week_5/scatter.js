@@ -11,8 +11,8 @@ changes: scales adapt, transformation
 window.onload = function() {
 
   // do a json request for the requested sources
-  var womenScience = "http://stats.oecd.org/SDMX-JSON/data/MSTI_PUB/TH_WRXRS.AUT+BEL+CZE+DNK+EST+FIN+FRA+LVA+DEU+HUN+IRL+ITA+JPN+KOR+LUX+NLD+POL+PRT+SVK+SVN+ESP+GBR+TUR/all?startTime=2008&endTime=2015"
-  var confidence = "http://stats.oecd.org/SDMX-JSON/data/HH_DASH/AUT+BEL+LVA+CZE+DNK+EST+FIN+FRA+DEU+HUN+IRL+ITA+JPN+KOR+LUX+NLD+POL+PRT+SVK+SVN+ESP+GBR+TUR.COCONF.A/all?startTime=2008&endTime=2015"
+  var womenScience = "https://stats.oecd.org/SDMX-JSON/data/MSTI_PUB/TH_WRXRS.AUT+BEL+CZE+DNK+EST+FIN+FRA+LVA+DEU+HUN+IRL+ITA+JPN+KOR+LUX+NLD+POL+PRT+SVK+SVN+ESP+GBR+TUR/all?startTime=2008&endTime=2015"
+  var confidence = "https://stats.oecd.org/SDMX-JSON/data/HH_DASH/AUT+BEL+LVA+CZE+DNK+EST+FIN+FRA+DEU+HUN+IRL+ITA+JPN+KOR+LUX+NLD+POL+PRT+SVK+SVN+ESP+GBR+TUR.COCONF.A/all?startTime=2008&endTime=2015"
   var womenScienceHeadCount = "https://stats.oecd.org/SDMX-JSON/data/MSTI_PUB/TH_WRS.AUT+BEL+LVA+CZE+DNK+EST+FIN+FRA+DEU+HUN+IRL+ITA+JPN+KOR+LUX+NLD+POL+PRT+SVK+SVN+ESP+GBR+TUR/all?startTime=2008&endTime=2015"
   var dataGDP = "https://stats.oecd.org/SDMX-JSON/data/HH_DASH/AUT+BEL+CZE+DNK+EST+FIN+FRA+DEU+HUN+LVA+IRL+ITA+JPN+KOR+LUX+NLD+POL+PRT+SVK+SVN+ESP+GBR+TUR.RGDP_INDEX.A/all?startTime=2008&endTime=2015"
   var requests = [d3.json(womenScience), d3.json(confidence),
