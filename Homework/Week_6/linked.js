@@ -70,20 +70,22 @@ function main(response) {
   var allData = response;
 
   // pick the start year for the plot
-  var startyear = Object.keys(allData)[0];
+  var startYear = Object.keys(allData)[0];
 
   // update selection bar
   updateSelect(allData);
 
   // create scale functions for selected year
-  var scales = scaleMaker(allData, startyear);
+  var scales = scaleMaker(allData, startYear);
 
   // create axes
   axesMaker(scales);
 
   // plot the barchart
-  barGraph(allData, scales, startyear);
+  barGraph(allData, scales, startYear);
 
+  // plot piechart Netherlands
+  pieChart(allData, "Nederland", startYear);
 };
 
 
@@ -196,7 +198,7 @@ function updateSelect(allData) {
     chosenYear = selectionBar.property("value");
     var newScales = scaleMaker(allData, this.value);
     barUpdate(allData, newScales, this.value);
-    // barGraphMaker(dataDict[chosenYear], svg, "Country", data);
+    pieUpdate(allData, currentState, this.value);
   });
 };
 
@@ -269,12 +271,19 @@ function barGraph(allData, scales, year) {
 
                 // extra interactivity for mouse clicking
                 .on("click", function(d){
-                  // pieChart(allData[year][d]);
-                  bars.attr("stroke", "black")
-                      .attr("opacity", "1");
-                  d3.select(this)
-                    .attr("stroke", "red")
-                    .attr("opacity", "0.5");
+                  var thisBar = d3.select(this);
+                  if (thisBar.style("opacity") === "0.5") {
+                    bars.attr("stroke", "black")
+                        .attr("opacity", "1");
+                    pieUpdate(allData, "Nederland", year);
+                  }
+                  else {
+                    bars.attr("stroke", "black")
+                        .attr("opacity", "1");
+                    thisBar.attr("stroke", "red")
+                           .attr("opacity", "0.5");
+                    pieUpdate(allData, d, year);
+                  };
                 });
 };
 
@@ -342,12 +351,21 @@ function barUpdate(allData, scales, year) {
                              param.width / scales[2] / 2 + "px");
       })
       .on("click", function(d){
-        // pieChart(allData[year][d]);
-        bars.attr("stroke", "black")
-            .attr("opacity", "1");
-        d3.select(this)
-          .attr("stroke", "red")
-          .attr("opacity", "0.5");
+        var thisBar = d3.select(this);
+        if (thisBar.style("opacity") === "0.5") {
+          bars.attr("stroke", "black")
+              .attr("opacity", "1");
+          pieUpdate(allData, "Nederland", year);
+        }
+        else {
+          bars.attr("stroke", "black")
+              .attr("opacity", "1");
+          thisBar.attr("stroke", "red")
+                 .attr("opacity", "0.5");
+          pieUpdate(allData, d, year);
+        };
+
+
       });
 
      // upate the axes
@@ -361,4 +379,14 @@ function barUpdate(allData, scales, year) {
         .attr("transform", function(d) {
           return "rotate(-65)"
         });
+};
+
+
+function pieChart(data, name, year) {
+  currentState = name;
+};
+
+
+function pieUpdate(data, name, year) {
+  currentState = name;
 };
