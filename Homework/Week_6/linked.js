@@ -12,45 +12,47 @@ window.onload = function() {
 
   // parameters plot
   margin = {
-    left: 100,
-    right: 200,
+    left: 60,
+    right: 500,
     top: 60,
-    bottom: 150
+    bottom: 130
   };
   param = {
-    height: 500,
-    width: 1150
+    height: 250,
+    width: 1000,
+    radius: 125
   };
 
   // selection bar for years
   selectionBar = d3.select("body")
-                          .append("select")
-                          .attr("class", "select");
+                   .append("select")
+                   .attr("class", "select");
 
   // tooltip
   tooltip = d3.select("body")
-                     .append("div")
-                     .style("position", "fixed")
-                     .style("text-align", "center")
-                     .style("width", "100px")
-                     .style("visibility", "hidden")
-                     .style("background", "black")
-                     .style("border", "2px solid red")
-                     .style("border-radius", "5px")
-                     .style("color", "white");
+              .append("div")
+              .style("position", "fixed")
+              .style("text-align", "center")
+              .style("width", "100px")
+              .style("visibility", "hidden")
+              .style("background", "black")
+              .style("border", "2px solid red")
+              .style("border-radius", "5px")
+              .style("color", "white");
 
   // make svg primary chart
   svg = d3.select("body")
-                 .append("svg")
-                 .attr("id", "mainSvg")
-                 .attr("width", param.width + margin.left + margin.right)
-                 .attr("height", param.height + margin.top + margin.bottom);
+          .append("svg")
+          .attr("id", "mainSvg")
+          .attr("width", param.width + margin.left + margin.right)
+          .attr("height", param.height + margin.top + margin.bottom);
 
   // make svg secondary chart
   svgTwo = d3.select("body")
-                    .append("svg")
-                    .attr("width", param.width + margin.left + margin.right)
-                    .attr("height", param.height + margin.top + margin.bottom);
+             .append("svg")
+             .attr("id", "chartPie")
+             .attr("width", param.width + margin.left + margin.right)
+             .attr("height", param.height + margin.top + margin.bottom);
 
   // import the json file then start main function
   d3.json("data.json").then(function(response) {
@@ -84,8 +86,8 @@ function main(response) {
   // plot the barchart
   barGraph(allData, scales, startYear);
 
-  // plot piechart Netherlands
-  pieChart(allData, "Nederland", startYear);
+  // make first pie chart
+  chartpie(allData, "Nederland", startYear);
 };
 
 
@@ -136,9 +138,9 @@ function axesMaker(scales) {
   // add title
   svg.append("text")
      .attr("transform",
-           "translate("+[margin.left / 2, margin.top / 2]+")")
+           "translate("+[0, margin.top / 2]+")")
      .style("font-weight", "bold")
-     .style("font-size", "25")
+     .style("font-size", "20")
      .text("Total births with a non-western migration background of townships with >100.000 inhabitants (The Netherlands)");
 
   // plot x-axis
@@ -154,7 +156,7 @@ function axesMaker(scales) {
             .attr("dx", "-.8em")
             .attr("dy", ".15em")
             .attr("transform", function(d) {
-                return "rotate(-65)"
+              return "rotate(-65)"
             });
 
   // plot y-axis
@@ -168,7 +170,7 @@ function axesMaker(scales) {
   svg.append("text")
      .attr("transform", "rotate(-90)")
      .attr("x", - 3 * param.height / 5)
-     .attr("y", margin.left / 4)
+     .attr("y", 0)
      .attr("dy", "1em")
      .style("text-anchor", "middle")
      .text("Births (number)");
@@ -220,7 +222,7 @@ function barGraph(allData, scales, year) {
                 .data(dataSet)
                 .enter()
                 .append("rect")
-                .attr("fill", "blue")
+                .attr("fill", "#0570b0")
                 .attr("stroke", "black")
                 .attr("stroke-width", 2)
                 .attr("width", param.width / scales[2] + "px")
@@ -259,7 +261,7 @@ function barGraph(allData, scales, year) {
                 })
                 .on("mouseout", function(){
                   d3.select(this)
-                    .attr("fill", "blue")
+                    .attr("fill", "#0570b0")
                   return (tooltip.style("visibility", "hidden"));
                 })
                 .on("mousemove", function(d, i){
@@ -275,6 +277,7 @@ function barGraph(allData, scales, year) {
                   if (thisBar.style("opacity") === "0.5") {
                     bars.attr("stroke", "black")
                         .attr("opacity", "1");
+                    currentState = "Nederland";
                     pieUpdate(allData, "Nederland", year);
                   }
                   else {
@@ -282,6 +285,7 @@ function barGraph(allData, scales, year) {
                         .attr("opacity", "1");
                     thisBar.attr("stroke", "red")
                            .attr("opacity", "0.5");
+                    currentState = d;
                     pieUpdate(allData, d, year);
                   };
                 });
@@ -341,7 +345,7 @@ function barUpdate(allData, scales, year) {
       })
       .on("mouseout", function(){
         d3.select(this)
-          .attr("fill", "blue")
+          .attr("fill", "#0570b0")
         return (tooltip.style("visibility", "hidden"));
       })
       .on("mousemove", function(d, i){
@@ -355,6 +359,7 @@ function barUpdate(allData, scales, year) {
         if (thisBar.style("opacity") === "0.5") {
           bars.attr("stroke", "black")
               .attr("opacity", "1");
+          currentState = "Nederland";
           pieUpdate(allData, "Nederland", year);
         }
         else {
@@ -362,10 +367,9 @@ function barUpdate(allData, scales, year) {
               .attr("opacity", "1");
           thisBar.attr("stroke", "red")
                  .attr("opacity", "0.5");
+          currentState = d;
           pieUpdate(allData, d, year);
         };
-
-
       });
 
      // upate the axes
@@ -382,11 +386,143 @@ function barUpdate(allData, scales, year) {
 };
 
 
-function pieChart(data, name, year) {
+function chartpie(allData, name, year) {
+  /*
+  Make donut chart + legend + title
+  Donut source: https://codepen.io/alexmorgan/pen/XXzpZP
+  */
+
+  // define global current state
   currentState = name;
+
+  // create scale
+  colorScale = d3.scaleOrdinal()
+                 .range(colorbrewer.Blues[5]);
+
+  // put needed data into lists
+  var dataSet = allData[year][name];
+  var data = [];
+  var dataKeys = [];
+  for (key in dataSet) {
+    dataKeys.push(key.split('/')[2]);
+    data.push(dataSet[key])
+  };
+  var total = data[0];
+  data = data.slice(1);
+  data.push(total - data.reduce(function(a, b) { return parseInt(a) +
+                                                 parseInt(b); }, 0));
+  dataKeys = dataKeys.slice(1);
+  dataKeys.push("Other");
+
+  // append group to svg
+  group = svgTwo.append("g")
+                .attr("transform",
+                      "translate("+[(param.width + margin.left +
+                                     margin.right) / 6,
+                                    (param.height + margin.top +
+                                     margin.bottom) / 2]+")");
+
+  // define arc
+  arc = d3.arc()
+          .innerRadius(param.radius * 0.5)
+          .outerRadius(param.radius);
+
+  // define the pie
+  pie = d3.pie()
+          .padAngle(.02)
+          .value(function(d) {return d});
+
+  // create arcs with the data
+  var arcs = group.selectAll("arc")
+                  .data(pie(data))
+                  .enter()
+                  .append("g")
+                  .attr("class", "arc");
+
+  // fill the arcs
+  arcs.append("path")
+      .attr("d", arc)
+      .attr("stroke", "black")
+      .attr("stroke-width", 2)
+      .attr("fill", function(d) {return colorScale(d.data)})
+
+      // interactivity for mouse hovering (how value and change color bar)
+      .on("mouseover", function(d){
+        d3.select(this)
+          .attr("stroke", "red")
+        return (tooltip.style("visibility", "visible")
+                       .text(d.data));
+      })
+      .on("mouseout", function(){
+        d3.select(this)
+          .attr("stroke", "black")
+        return (tooltip.style("visibility", "hidden"));
+      })
+      .on("mousemove", function(d, i){
+        return tooltip.style("top", event.clientY -
+                             param.height / 10 + "px")
+                      .style("left", event.clientX + "px");
+      });
+
+  // add title
+  svgTwo.append("text")
+        .attr("id", "pieTitle")
+        .attr("transform",
+              "translate("+[0, margin.top / 2]+")")
+        .style("font-weight", "bold")
+        .style("font-size", "20")
+        .text("Distribution births with a non-western migration background of " +
+              name + " (total births: " + total + ")");
+
+  // create legend
+  svgTwo.append("g")
+        .attr("class", "legendOrdinal")
+        .attr("transform", "translate("+[4 * (param.width + margin.left) / 9,
+                                         (param.height + margin.top +
+                                          margin.bottom) / 6]+")");
+  var legend = d3.legendColor()
+                 .labelFormat(d3.format(".0f"))
+                 .scale(colorScale)
+                 .labels(dataKeys)
+                 .shapePadding(5)
+                 .shapeWidth(50)
+                 .shapeHeight(20)
+                 .labelOffset(12);
+
+  svgTwo.select(".legendOrdinal")
+        .call(legend);
 };
 
 
-function pieUpdate(data, name, year) {
-  currentState = name;
+function pieUpdate(allData, name, year) {
+  /*
+  Update pie chart
+  */
+
+  // put needed data into lists
+  var dataSet = allData[year][name];
+  var data = [];
+  for (key in dataSet) {
+    data.push(dataSet[key])
+  };
+  var total = data[0];
+  data = data.slice(1);
+  data.push(total - data.reduce(function(a, b) { return parseInt(a) +
+                                                 parseInt(b); }, 0));
+
+  if (data[0] === "") {
+    return pieUpdate(allData, "Nederland", year);
+  };
+
+  // create arcs with the data
+  var arcs = group.selectAll("path")
+                  .data(pie(data))
+                  .transition()
+                  .attr("d", arc);
+
+  // update title
+  d3.select("#pieTitle")
+    .transition()
+    .text("Distribution births with a non-western migration background of " +
+          name + " (total births: " + total + ")");
 };
