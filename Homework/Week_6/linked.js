@@ -2,6 +2,10 @@
 Name: Thomas Reus
 Student number: 11150041
 Assignment: linked views D3
+
+Creates a connected barchart and piechart 
+with both a tooltip and interactivity
+by a select.
 */
 
 window.onload = function() {
@@ -13,8 +17,8 @@ window.onload = function() {
   // parameters plot
   margin = {
     left: 60,
-    right: 500,
-    top: 60,
+    right: 120,
+    top: 50,
     bottom: 130
   };
   param = {
@@ -26,7 +30,8 @@ window.onload = function() {
   // selection bar for years
   selectionBar = d3.select("body")
                    .append("select")
-                   .attr("class", "select");
+                   .attr("class", "btn btn-primary dropdown-toggle");
+  d3.select("body").append("div");
 
   // tooltip
   tooltip = d3.select("body")
@@ -137,8 +142,9 @@ function axesMaker(scales) {
 
   // add title
   svg.append("text")
+     .attr("class", "text")
      .attr("transform",
-           "translate("+[0, margin.top / 2]+")")
+           "translate("+[margin.left / 2, margin.top / 2]+")")
      .style("font-weight", "bold")
      .style("font-size", "20")
      .text("Total births with a non-western migration background of townships with >100.000 inhabitants (The Netherlands)");
@@ -152,6 +158,7 @@ function axesMaker(scales) {
 
      // this part adapted from: http://bl.ocks.org/d3noob/ccdcb7673cdb3a796e13
      .selectAll("text")
+            .attr("class", "text")
             .style("text-anchor", "end")
             .attr("dx", "-.8em")
             .attr("dy", ".15em")
@@ -168,6 +175,7 @@ function axesMaker(scales) {
 
   // y label
   svg.append("text")
+     .attr("class", "text")
      .attr("transform", "rotate(-90)")
      .attr("x", - 3 * param.height / 5)
      .attr("y", 0)
@@ -267,8 +275,7 @@ function barGraph(allData, scales, year) {
                 .on("mousemove", function(d, i){
                   return tooltip.style("top", event.clientY -
                                        param.height / 10 + "px")
-                                .style("left", scales[0](d) -
-                                       param.width / scales[2] / 2 + "px");
+                                .style("left", event.clientX + "px");
                 })
 
                 // extra interactivity for mouse clicking
@@ -351,8 +358,7 @@ function barUpdate(allData, scales, year) {
       .on("mousemove", function(d, i){
         return tooltip.style("top", event.clientY -
                              param.height / 10 + "px")
-                      .style("left", scales[0](d) -
-                             param.width / scales[2] / 2 + "px");
+                      .style("left", event.clientX + "px");
       })
       .on("click", function(d){
         var thisBar = d3.select(this);
@@ -378,6 +384,7 @@ function barUpdate(allData, scales, year) {
         .transition()
         .call(d3.axisBottom(scales[0])).selectAll("text")
         .style("text-anchor", "end")
+        .attr("class", "text")
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
         .attr("transform", function(d) {
@@ -418,7 +425,7 @@ function chartpie(allData, name, year) {
   group = svgTwo.append("g")
                 .attr("transform",
                       "translate("+[(param.width + margin.left +
-                                     margin.right) / 6,
+                                     margin.right) / 4,
                                     (param.height + margin.top +
                                      margin.bottom) / 2]+")");
 
@@ -466,9 +473,10 @@ function chartpie(allData, name, year) {
 
   // add title
   svgTwo.append("text")
+        .attr("class", "text")
         .attr("id", "pieTitle")
         .attr("transform",
-              "translate("+[0, margin.top / 2]+")")
+              "translate("+[margin.left / 2, margin.top / 2]+")")
         .style("font-weight", "bold")
         .style("font-size", "20")
         .text("Distribution births with a non-western migration background of " +
@@ -510,6 +518,7 @@ function pieUpdate(allData, name, year) {
   data.push(total - data.reduce(function(a, b) { return parseInt(a) +
                                                  parseInt(b); }, 0));
 
+  // if not available reset
   if (data[0] === "") {
     return pieUpdate(allData, "Nederland", year);
   };
@@ -523,6 +532,7 @@ function pieUpdate(allData, name, year) {
   // update title
   d3.select("#pieTitle")
     .transition()
+    .attr("class", "text")
     .text("Distribution births with a non-western migration background of " +
           name + " (total births: " + total + ")");
 };
