@@ -3,7 +3,7 @@ Name: Thomas Reus
 Student number: 11150041
 Assignment: linked views D3
 
-Creates a connected barchart and piechart 
+Creates a connected barchart and piechart
 with both a tooltip and interactivity
 by a select.
 */
@@ -38,11 +38,12 @@ window.onload = function() {
               .append("div")
               .style("position", "fixed")
               .style("text-align", "center")
-              .style("width", "100px")
+              .style("width", "80px")
+              .style("height", "30px")
               .style("visibility", "hidden")
-              .style("background", "black")
-              .style("border", "2px solid red")
+              .style("background", "#3182bd")
               .style("border-radius", "5px")
+              .style("line-height", "30px")
               .style("color", "white");
 
   // make svg primary chart
@@ -263,7 +264,7 @@ function barGraph(allData, scales, year) {
                 // interactivity for mouse hovering (how value and change color bar)
                 .on("mouseover", function(d){
                   d3.select(this)
-                    .attr("fill", "red")
+                    .attr("fill", "#e6550d")
                   return (tooltip.style("visibility", "visible")
                                  .text(allData[year][d][key]));
                 })
@@ -274,7 +275,7 @@ function barGraph(allData, scales, year) {
                 })
                 .on("mousemove", function(d, i){
                   return tooltip.style("top", event.clientY -
-                                       param.height / 10 + "px")
+                                       param.height / 8 + "px")
                                 .style("left", event.clientX + "px");
                 })
 
@@ -290,7 +291,7 @@ function barGraph(allData, scales, year) {
                   else {
                     bars.attr("stroke", "black")
                         .attr("opacity", "1");
-                    thisBar.attr("stroke", "red")
+                    thisBar.attr("stroke", "#e6550d")
                            .attr("opacity", "0.5");
                     currentState = d;
                     pieUpdate(allData, d, year);
@@ -346,7 +347,7 @@ function barUpdate(allData, scales, year) {
   bars.data(dataSet)
       .on("mouseover", function(d){
         d3.select(this)
-          .attr("fill", "red")
+          .attr("fill", "#e6550d")
         return (tooltip.style("visibility", "visible")
                        .text(allData[year][d][key]));
       })
@@ -357,7 +358,7 @@ function barUpdate(allData, scales, year) {
       })
       .on("mousemove", function(d, i){
         return tooltip.style("top", event.clientY -
-                             param.height / 10 + "px")
+                             param.height / 8 + "px")
                       .style("left", event.clientX + "px");
       })
       .on("click", function(d){
@@ -371,7 +372,7 @@ function barUpdate(allData, scales, year) {
         else {
           bars.attr("stroke", "black")
               .attr("opacity", "1");
-          thisBar.attr("stroke", "red")
+          thisBar.attr("stroke", "#e6550d")
                  .attr("opacity", "0.5");
           currentState = d;
           pieUpdate(allData, d, year);
@@ -456,7 +457,7 @@ function chartpie(allData, name, year) {
       // interactivity for mouse hovering (how value and change color bar)
       .on("mouseover", function(d){
         d3.select(this)
-          .attr("stroke", "red")
+          .attr("stroke", "#e6550d")
         return (tooltip.style("visibility", "visible")
                        .text(d.data));
       })
@@ -467,7 +468,7 @@ function chartpie(allData, name, year) {
       })
       .on("mousemove", function(d, i){
         return tooltip.style("top", event.clientY -
-                             param.height / 10 + "px")
+                             param.height / 8 + "px")
                       .style("left", event.clientX + "px");
       });
 
