@@ -41,6 +41,7 @@ window.onload = function() {
               .style("width", "80px")
               .style("height", "30px")
               .style("visibility", "hidden")
+              .style("border", "2px solid #e6550d")
               .style("background", "#3182bd")
               .style("border-radius", "5px")
               .style("line-height", "30px")
